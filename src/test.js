@@ -7,17 +7,66 @@ const WALL = 1;
 const ENEMY = 2;
 const CELLSIZE = 20;
 
+function dijkstra(sx, sy, dx, dy, grid){
+        var source = sx * grid.width + sy;
+        var destination = dx * grid.width + dy;
+        var q = [];
+        var dist = {};
+        var prev = {};
+        var vertices = Array.from(grid.vertexSet);
+        for (var i = 0; i < vertices.length; i++){
+            dist[vertices[i]] = Infinity;
+            prev[vertices[i]] = undefined;
+            q.push(vertices[i]);
+        }
+        dist[source] = 0;
+        while (q.length > 0){
+            // select vertex with minimum distance from q
+            var minDist = dist[q[0]];
+            var minDistIndex = 0;
+            for (var i = 0; i < q.length; i++){
+                var v = q[i];
+                if (dist[v] < minDist){
+                    minDist = dist[v];
+                    minDistIndex
+                }
+            }
+            var v = q.splice(minDistIndex, 1)[0];
+            var neighbours = grid.nodes[v];
+            for (var i = 0; i < neighbours.length; i++){
+                var u = neighbours[i];
+                var alt = dist[u] + 1;
+                if (alt < dist[v]) {
+                    dist[v] = alt;
+                    prev[v] = u;
+                }
+            }
+        }
+        var route = [];
+        var p = prev[destination];
+        route.push(p);
+        while (p != source){
+            p = prev[p];
+            route.push(p)
+        }
+        return route
+}
+
+
+
 function Enemy(x, y, node){
     this.x = x;
     this.y = y;
     this.node = node;
     this.route = [];
     this.move = function(){
-        var p = this.route.pop();
-        var px = Math.floor(p / WIDTH);
-        var py = p % WIDTH;
-        this.x = px;
-        this.y = py;
+        if (this.route.length > 0){
+          var p = this.route.pop();
+          var px = Math.floor(p / WIDTH);
+          var py = p % WIDTH;
+          this.x = px;
+          this.y = py;
+        }
     }
     this.setRoute = function(route){
         this.route = route;
@@ -25,12 +74,13 @@ function Enemy(x, y, node){
 }
 
 function GridGraph(grid,w,h){
+    
     this.grid = grid;
     this.nodes = {};
     this.vertexSet = new Set([])
     this.width = w;
     this.height = h;
-    this.enemy = new Enemy(1, 1);
+    
     for (var x = 0; x < w; x++){
         for (var y = 0; y < h; y++){
             if (grid[x][y] == OPEN){
@@ -53,6 +103,14 @@ function GridGraph(grid,w,h){
             }
         }
     }
+
+    var enemyX = Math.floor(Math.random() * WIDTH);
+    var enemyY = Math.floor(Math.random() * HEIGHT);
+    while (this.grid[enemyX][enemyY] != OPEN){
+      enemyX = Math.floor(Math.random() * WIDTH);
+      enemyY = Math.floor(Math.random() * HEIGHT);
+    }
+    this.enemy = new Enemy(enemyX, enemyY);
     this.draw = function(){
         for (var x = 0; x < this.width; x++){
             for (var y = 0; y < this.height; y++){
@@ -87,21 +145,13 @@ function GridGraph(grid,w,h){
         }
         return path;
     };
-    this.astar = function(sx, sy, dx, dy){
-        var startNode = sx*this.width + sy;
-        var endNode = dx*this.width + dy;
-    };
     this.dijkstra = function(sx, sy, dx, dy){
         var source = sx*this.width + sy;
         var destination = dx*this.width + dy;
-        //var endNode = dx*this.width + dy;
         var q = [];
         var dist = {};
         var prev = {};
         var vertices = Array.from(this.vertexSet);
-        var length = function(u, v){
-            return 0;
-        };
         for (var i = 0; i < vertices.length; i++){
             dist[vertices[i]] = Infinity;
             prev[vertices[i]] = undefined;
@@ -164,30 +214,57 @@ for (var i = 0; i < 25; i++){
     }
 }
 
-var g;
+var gridGraph;
 var canvas;
 var released;
 
 function setup(){ 
-    g = new GridGraph(big, 25, 25);
-    canvas = createCanvas(25*CELLSIZE, 25*CELLSIZE).parent("canvasHere");
+    gridGraph = new GridGraph(big, WIDTH, HEIGHT);
+    canvas = createCanvas(WIDTH*CELLSIZE, HEIGHT*CELLSIZE).parent("canvasHere");
     released = true;
 }
 
 function draw(){
-    g.draw();
-    if (g.enemy.route.length > 0){
-        g.enemy.move();
+    gridGraph.draw();
+    if (gridGraph.enemy.route.length > 0){
+        gridGraph.enemy.move();
     }
-    if (mouseIsPressed && released){
+    if (mouseIsPressed) { 
+      if (released){
         var x = Math.floor(mouseX / CELLSIZE) - 1;
         var y = Math.floor(mouseY / CELLSIZE) - 1;
-        var sx = g.enemy.x;
-        var sy = g.enemy.y;
-        var newRoute = g.dijkstra(sx, sy, x, y);
-        g.enemy.setRoute(newRoute);
+        var sx = gridGraph.enemy.x;
+        var sy = gridGraph.enemy.y;
+        var newRoute = dijkstra(sx, sy, x, y, gridGraph);
+        gridGraph.enemy.setRoute(newRoute);
         released = false;
-    };
+      }
+    }
     if (! mouseIsPressed) { released = true; }
+
+    fill(0, 255, 0);
+    rect((Math.floor(mouseX / CELLSIZE) * CELLSIZE), 
+         (Math.floor(mouseY / CELLSIZE) * CELLSIZE),
+         CELLSIZE,
+         CELLSIZE);
 }
 
+gridGraph = new GridGraph(big, WIDTH, HEIGHT);
+
+var sx = Math.floor(Math.random() * WIDTH);
+var sy = Math.floor(Math.random() * HEIGHT);
+while (gridGraph.grid[sx][sy] != OPEN) {
+  sx = Math.floor(Math.random() * WIDTH);
+  sy = Math.floor(Math.random() * HEIGHT);
+}
+
+
+var dx = Math.floor(Math.random() * WIDTH);
+var dy = Math.floor(Math.random() * HEIGHT);
+while (gridGraph.grid[dx][dy] != OPEN) {
+  dx = Math.floor(Math.random() * WIDTH);
+  dy = Math.floor(Math.random() * HEIGHT);
+}
+
+console.log(gridGraph.grid);
+console.log(dijkstra(sx, sy, dx, dy, gridGraph));
