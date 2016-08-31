@@ -32,31 +32,24 @@ function Graph(grid,w,h){
             }
         }
     }
-    this.bfs = function(sx, sy, dx, dy){
-        var s = sx*this.width + sy;
-        var d = dx*this.height + dy;
-    }
-    
-    
 }
 
 
-function Enemy(x, y){
+function Enemy(x, y, dungeon){
     this.x = x;
     this.y = y;
-    
-    var moveLeft = function(){
-        this.x -= 1;
+    this.dungeon = dungeon;
+    this.G = new Graph(this.dungeon.grid, this.dungeon.width, this.dungeon.height);
+    this.movesList = [];
+    this.bfs = function(sx, sy, dx, dy){
+        var s = sx*this.width + sy;
+        var d = dx*this.height + dy;
     };
-    var moveRight = function(){
-        this.x += 1
-    };
-    var moveUp = function(){
-        this.y -= 1;
-    };
-    var moveDown = function(){
-        this.y += 1;
-    };
+    this.dfs = function(){
+        var discovered = [];
+        var v = this.x * this.dungeon.width + this.y;
+        
+    }
     
 }
 
