@@ -59,6 +59,7 @@ function GridGraph(grid,w,h){
     };
     this.dijkstra = function(sx, sy, dx, dy){
         var source = sx*this.width + sy;
+        var destination = dx*this.width + dy;
         //var endNode = dx*this.width + dy;
         var q = [];
         var dist = {};
@@ -95,7 +96,14 @@ function GridGraph(grid,w,h){
                 }
             }
         }
-        return [dist, prev];
+        var route = [];
+        var p = prev[destination];
+        route.push(p);
+        while (p != source){
+            p = prev[p];
+            route.push(p)
+        }
+        return route
     }
 }
 
