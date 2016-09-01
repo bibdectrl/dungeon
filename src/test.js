@@ -10,6 +10,7 @@ const CELLSIZE = 20;
 function dijkstra(sx, sy, dx, dy, grid){
         var source = sx * grid.width + sy;
         var destination = dx * grid.width + dy;
+        console.log("finding route from " + source + " to " + destination);
         var q = [];
         var dist = {};
         var prev = {};
@@ -28,7 +29,7 @@ function dijkstra(sx, sy, dx, dy, grid){
                 var v = q[i];
                 if (dist[v] < minDist){
                     minDist = dist[v];
-                    minDistIndex
+                    minDistIndex = i;
                 }
             }
             var v = q.splice(minDistIndex, 1)[0];
@@ -42,10 +43,12 @@ function dijkstra(sx, sy, dx, dy, grid){
                 }
             }
         }
+        console.log("building route");
         var route = [];
         var p = prev[destination];
         route.push(p);
-        while (p != source){
+        while (p != source && p !== undefined){
+            console.log(p);
             p = prev[p];
             route.push(p)
         }
@@ -166,7 +169,7 @@ function GridGraph(grid,w,h){
                 var v = q[i];
                 if (dist[v] < minDist){
                     minDist = dist[v];
-                    minDistIndex
+                    minDistIndex = i;
                 }
             }
             var v = q.splice(minDistIndex, 1)[0];
