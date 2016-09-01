@@ -45,6 +45,7 @@ function dijkstra(sx, sy, dx, dy, grid){
         }
         console.log("building route");
         var route = [];
+        route.push(destination);
         var p = prev[destination];
         route.push(p);
         while (p != source && p !== undefined){
@@ -107,11 +108,11 @@ function GridGraph(grid,w,h){
         }
     }
 
-    var enemyX = Math.floor(Math.random() * WIDTH);
-    var enemyY = Math.floor(Math.random() * HEIGHT);
+    var enemyX = Math.floor(Math.random() * this.width);
+    var enemyY = Math.floor(Math.random() * this.height);
     while (this.grid[enemyX][enemyY] != OPEN){
-      enemyX = Math.floor(Math.random() * WIDTH);
-      enemyY = Math.floor(Math.random() * HEIGHT);
+      enemyX = Math.floor(Math.random() * this.width);
+      enemyY = Math.floor(Math.random() * this.height);
     }
     this.enemy = new Enemy(enemyX, enemyY);
     this.draw = function(){
@@ -246,27 +247,28 @@ function draw(){
     if (! mouseIsPressed) { released = true; }
 
     fill(0, 255, 0);
-    rect((Math.floor(mouseX / CELLSIZE) * CELLSIZE), 
-         (Math.floor(mouseY / CELLSIZE) * CELLSIZE),
+    rect((Math.floor((mouseX / CELLSIZE) - 0.5) * CELLSIZE), 
+         (Math.floor((mouseY / CELLSIZE) - 0.5) * CELLSIZE),
          CELLSIZE,
          CELLSIZE);
 }
 
-gridGraph = new GridGraph(big, WIDTH, HEIGHT);
+//gridGraph = new GridGraph(big, WIDTH, HEIGHT);
+gridGraph = new GridGraph(simple, 5, 5);
 
-var sx = Math.floor(Math.random() * WIDTH);
-var sy = Math.floor(Math.random() * HEIGHT);
+var sx = Math.floor(Math.random() * 5);
+var sy = Math.floor(Math.random() * 5);
 while (gridGraph.grid[sx][sy] != OPEN) {
-  sx = Math.floor(Math.random() * WIDTH);
-  sy = Math.floor(Math.random() * HEIGHT);
+  sx = Math.floor(Math.random() * 5);
+  sy = Math.floor(Math.random() * 5);
 }
 
 
-var dx = Math.floor(Math.random() * WIDTH);
-var dy = Math.floor(Math.random() * HEIGHT);
+var dx = Math.floor(Math.random() * 5);
+var dy = Math.floor(Math.random() * 5);
 while (gridGraph.grid[dx][dy] != OPEN) {
-  dx = Math.floor(Math.random() * WIDTH);
-  dy = Math.floor(Math.random() * HEIGHT);
+  dx = Math.floor(Math.random() * 5);
+  dy = Math.floor(Math.random() * 5);
 }
 
 console.log(gridGraph.grid);
